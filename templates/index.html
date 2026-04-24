@@ -3,68 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News X</title>
+    <title>BriefD - AI-Powered News</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-black text-white">
     <div class="container mx-auto p-4">
-        <h1 class="text-5xl font-bold mb-4 text-left">NewsX</h1>
+        <h1 class="text-5xl font-bold mb-4 text-left">🌟 BriefD</h1>
+        <p class="text-gray-400 mb-6">AI-Powered News & Summaries</p>
         
-        <!-- Sticky refresh button -->
-        <div class="sticky top-0 bg-black p-2 z-50">
-            <div class="flex justify-end">
-                <a href="/" class="p-2 bg-white rounded text-black">More News</a>
+        <!-- Sticky header -->
+        <div class="sticky top-0 bg-black p-2 z-50 border-b border-gray-700 mb-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="p-2 bg-white rounded text-black hover:bg-gray-200">🔄 Refresh</a>
+                <span class="text-sm text-gray-500">Select category to get latest news</span>
             </div>
         </div>
 
-        <form method="post" class="mb-4">
+        <!-- Category selector form -->
+        <form method="post" class="mb-6 p-4 bg-slate-900 rounded">
             <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
                 <select name="category" class="p-2 bg-black border border-gray-700 rounded w-full md:w-auto text-white">
                     {% for cat in categories %}
-                        <option value="{{ cat }}" {% if cat == query %}selected{% endif %}>{{ cat }}</option>
+                        <option value="{{ cat }}" {% if cat == query %}selected{% endif %}>{{ cat.capitalize() }}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" class="p-2 bg-white rounded text-black w-full md:w-auto">Get News</button>
+                <button type="submit" class="p-2 bg-blue-600 rounded text-white hover:bg-blue-700 w-full md:w-auto font-semibold">📰 Get News</button>
             </div>
         </form>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Main News Section -->
             <div class="lg:col-span-2">
                 {% if news %}
-                    <h2 class="text-2xl font-semibold mb-2">Selected News</h2>
+                    <h2 class="text-2xl font-semibold mb-4 text-blue-400">📺 Latest News</h2>
                     <ul class="space-y-4">
                         {% for article in news %}
-                            <li class="bg-slate-900 p-4 rounded flex flex-col md:flex-row items-start md:space-x-4">
-                                {% if article.image_url %}
-                                    <img src="{{ article.image_url }}" alt="{{ article.title }}" class="w-full md:w-32 md:h-32 object-cover rounded mb-4 md:mb-0">
-                                {% endif %}
-                                <div>
-                                    <h3 class="text-xl font-bold mb-2"><a href="{{ article.url }}" class="text-gray-200 hover:underline">{{ article.title }}</a></h3>
-                                    <p>{{ article.description }}</p>
+                            <li class="bg-slate-900 p-4 rounded border border-gray-700 hover:border-blue-500 transition-all">
+                                <div class="flex flex-col md:flex-row md:space-x-4">
+                                    {% if article.image_url %}
+                                        <img src="{{ article.image_url }}" alt="{{ article.title }}" class="w-full md:w-40 md:h-32 object-cover rounded mb-4 md:mb-0">
+                                    {% else %}
+                                        <div class="w-full md:w-40 md:h-32 bg-gray-700 rounded mb-4 md:mb-0 flex items-center justify-center">
+                                            <span class="text-gray-500">No Image</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-bold mb-2 text-white">
+                                            <a href="{{ article.url }}" target="_blank" class="text-blue-400 hover:underline">{{ article.title }}</a>
+                                        </h3>
+                                        <p class="text-gray-300 mb-3 line-clamp-2">{{ article.description }}</p>
+                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                            <span>📌 {{ article.source }}</span>
+                                            <button type="button" onclick="summarizeArticle(this)" data-text="{{ article.description }}" class="px-3 py-1 bg-purple-600 rounded hover:bg-purple-700 text-white">✨ AI Summary</button>
+                                        </div>
+                                        <div class="mt-2 summary-container hidden p-3 bg-slate-800 rounded text-sm">
+                                            <div class="language-selector mb-2 flex gap-2">
+                                                <select class="language-select p-1 bg-black border border-gray-600 rounded text-xs">
+                                                    <option value="English">English</option>
+                                                    <option value="Hindi">हिंदी</option>
+                                                    <option value="Spanish">Español</option>
+                                                    <option value="French">Français</option>
+                                                    <option value="German">Deutsch</option>
+                                                    <option value="Chinese">中文</option>
+                                                    <option value="Japanese">日本語</option>
+                                                </select>
+                                                <button type="button" onclick="generateSummary(this)" class="px-2 py-1 bg-blue-600 rounded hover:bg-blue-700 text-xs">Generate</button>
+                                            </div>
+                                            <p class="summary-text text-gray-300 loading-text">Loading summary...</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </li>
                         {% endfor %}
                     </ul>
                 {% elif error %}
-                    <p class="text-red-500">{{ error }}</p>
+                    <div class="bg-red-900 p-4 rounded border border-red-700">
+                        <p class="text-red-200">⚠️ {{ error }}</p>
+                    </div>
+                {% else %}
+                    <p class="text-gray-400">No news found. Try another category.</p>
                 {% endif %}
             </div>
             
-            <div class="bg-gray-900">
+            <!-- Trending News Sidebar -->
+            <div class="bg-slate-900 rounded p-4 border border-gray-700 h-fit sticky top-24">
                 {% if trending_news %}
-                    <h2 class="text-2xl font-semibold mb-2 mt-3 ml-3">Trending News</h2>
-                    <ul class="space-y-4">
+                    <h2 class="text-xl font-semibold mb-4 text-red-400">🔥 Trending</h2>
+                    <ul class="space-y-3">
                         {% for article in trending_news %}
-                            <li class="bg-slate-800 p-4 rounded flex flex-col md:flex-row items-start md:space-x-4">
-                                <div>
-                                    <h3 class="text-lg font-bold mb-2"><a href="{{ article.url }}" class="text-gray-200 hover:underline">{{ article.title }}</a></h3>
-                                </div>
+                            <li class="pb-3 border-b border-gray-700 last:border-0">
+                                <h3 class="font-semibold text-sm mb-1">
+                                    <a href="{{ article.url }}" target="_blank" class="text-gray-200 hover:text-blue-400">{{ article.title }}</a>
+                                </h3>
+                                <p class="text-xs text-gray-500">📌 {{ article.source }}</p>
                             </li>
                         {% endfor %}
                     </ul>
+                {% else %}
+                    <p class="text-gray-500">No trending news available.</p>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <script>
+        function summarizeArticle(button) {
+            const container = button.closest('li').querySelector('.summary-container');
+            container.classList.toggle('hidden');
+        }
+
+        function generateSummary(button) {
+            const container = button.closest('.summary-container');
+            const summaryText = container.querySelector('.summary-text');
+            const languageSelect = container.querySelector('.language-select');
+            const language = languageSelect.value;
+            
+            const textButton = container.closest('li').querySelector('[onclick*="summarizeArticle"]');
+            const text = textButton.getAttribute('data-text');
+            
+            if (!text) {
+                summaryText.textContent = 'No text to summarize';
+                return;
+            }
+            
+            summaryText.textContent = '⏳ Generating...';
+            summaryText.classList.remove('loading-text');
+            
+            fetch('/api/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    language: language
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                summaryText.textContent = data.summary || 'Failed to generate summary';
+            })
+            .catch(error => {
+                summaryText.textContent = `Error: ${error.message}`;
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>
