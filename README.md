@@ -1,6 +1,6 @@
-# NewsX - A News Aggregator Web App
+#BriefD - A News Aggregator Web App
 
-NewsX is a simple Flask-based web application that fetches and displays the latest news from various categories using the Mediastack API. The application allows users to select different news categories and view the latest articles in those categories. It uses a responsive, clean design powered by **Tailwind CSS**.
+BriefD is a simple Flask-based web application that fetches and displays the latest news from various categories using the Mediastack API. The application allows users to select different news categories and view the latest articles in those categories. It uses a responsive, clean design powered by **Tailwind CSS**.
 
 ## Features
 
